@@ -6,807 +6,461 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PresaleWeb</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
 :root {
-  --orange:#ff762e;
-  --orange2:#ff934f;
-  --blue:#279cff;
   --bg:#080808;
-  --surface:#151515;
-  --surface2:#202020;
-  --text:#ffffff;
-  --muted:#a5a5a5;
-  --border:#303030;
+  --panel:#141414;
+  --panel2:#1c1c1c;
+  --orange:#ff7626;
+  --blue:#269cff;
+  --text:#fff;
+  --muted:#aaa;
+  --border:#292929;
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;background:var(--bg)}
 body{
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font-family:Arial,sans-serif;
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
 }
-header{
-  background:#111;
-  border-bottom:1px solid var(--border);
-  padding:15px 5%;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.topbar{
+  height:65px;position:sticky;top:0;z-index:20;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 17px;background:#090909ed;
+  border-bottom:1px solid var(--border);backdrop-filter:blur(15px);
+}
+.brand{font-size:23px;font-weight:900;letter-spacing:-1px}
+.brand span{color:var(--orange)}
+.menu-button{
+  background:var(--panel2);border:1px solid var(--border);
+  color:white;border-radius:12px;padding:9px 13px;font-size:22px;
+}
+.top-actions{display:flex;gap:9px;align-items:center}
+.small-btn{
+  background:var(--panel2);border:1px solid var(--border);
+  color:white;border-radius:10px;padding:9px 12px;
+}
+.drawer{
+  position:fixed;inset:0 auto 0 0;width:285px;max-width:85vw;
+  background:#101010;z-index:50;padding:20px;
+  transform:translateX(-110%);transition:.25s;
+  border-right:1px solid var(--border);overflow:auto;
+}
+.drawer.open{transform:translateX(0)}
+.overlay{
+  display:none;position:fixed;inset:0;background:#000a;z-index:40;
+}
+.overlay.show{display:block}
+.drawer-title{font-size:22px;font-weight:900;margin:10px 0 25px}
+.drawer-title span{color:var(--orange)}
+.nav-item{
+  width:100%;display:flex;align-items:center;gap:13px;
+  padding:14px;margin:5px 0;border:0;border-radius:12px;
+  background:transparent;color:white;text-align:left;font-size:15px;
+}
+.nav-item:hover,.nav-item.active{background:#292019;color:var(--orange)}
+.nav-item .ico{width:23px;font-size:19px}
+main{max-width:1250px;margin:auto;padding:20px 17px 90px}
+.page{display:none;animation:fade .2s ease}
+.page.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+h1{font-size:29px;margin:8px 0}
+h2{font-size:21px}
+.sub{color:var(--muted);margin:8px 0 20px}
+.hero{
+  padding:28px;border-radius:20px;
+  background:linear-gradient(125deg,#321707,#151515 65%,#10243a);
+  border:1px solid #3a281d;margin:12px 0 25px;
+}
+.hero h1{font-size:clamp(28px,5vw,43px)}
+.orange{color:var(--orange)}
+.search{
+  width:100%;padding:14px 16px;background:var(--panel);
+  color:white;border:1px solid var(--border);border-radius:13px;
+  outline:none;margin:12px 0;
+}
+.search:focus,input:focus,textarea:focus,select:focus{border-color:var(--orange)}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0 20px}
+.toolbar select,.field{
+  padding:11px;background:var(--panel);color:white;
+  border:1px solid var(--border);border-radius:10px;
+}
+.categories{display:flex;gap:9px;overflow-x:auto;padding:5px 0 15px}
+.chip{
+  white-space:nowrap;border:1px solid var(--border);
+  background:var(--panel);color:white;border-radius:30px;padding:9px 15px;
+}
+.chip.active{background:var(--orange);color:#111;border-color:var(--orange)}
+.product-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));
   gap:15px;
-  position:sticky;
-  top:0;
-  z-index:10;
 }
-.logo{
-  font-size:25px;
-  font-weight:900;
-  color:var(--orange);
-  letter-spacing:-1px;
+.product{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:15px;overflow:hidden;transition:.2s;min-width:0;
 }
-button{
-  border:0;
-  border-radius:11px;
-  padding:12px 17px;
-  background:var(--orange);
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-  transition:.2s;
+.product:hover{transform:translateY(-3px);border-color:#75401f}
+.product-media{
+  width:100%;aspect-ratio:4/4.7;object-fit:cover;
+  display:block;background:#222;
 }
-button:hover{
-  background:var(--orange2);
-  transform:translateY(-2px);
-  box-shadow:0 5px 20px #ff762e35;
+.product-info{padding:12px}
+.product-title{font-weight:750;margin:0 0 7px;overflow-wrap:anywhere}
+.product-desc{color:var(--muted);font-size:13px;line-height:1.4}
+.price{font-size:18px;color:var(--orange);font-weight:900;margin:10px 0}
+.product-buttons{display:flex;gap:7px}
+.primary,.secondary,.danger{
+  padding:11px 13px;border:0;border-radius:10px;font-weight:750;
 }
-button:disabled{opacity:.5;cursor:not-allowed;transform:none}
-button.secondary{
-  background:#292929;
-  color:white;
+.primary{background:var(--orange);color:#111}
+.secondary{background:#292929;color:white}
+.danger{background:#5b1717;color:white}
+.product-buttons button{flex:1;font-size:12px}
+.feed{max-width:620px;margin:auto}
+.feed-card{
+  background:#111;border:1px solid var(--border);
+  border-radius:17px;overflow:hidden;margin:15px 0 23px;
 }
-button.secondary:hover{background:#383838}
-input,textarea,select{
-  width:100%;
-  padding:13px;
-  margin:7px 0 13px;
-  border:1px solid #383838;
-  border-radius:10px;
-  font:inherit;
-  background:#202020;
-  color:white;
+.feed-media{
+  width:100%;max-height:690px;aspect-ratio:4/5;
+  object-fit:contain;background:#050505;display:block;
 }
-input:focus,textarea:focus,select:focus{
-  outline:2px solid var(--orange);
-  border-color:var(--orange);
+.feed-details{padding:15px}
+.feed-actions{display:flex;gap:10px;margin-top:13px}
+.feed-actions button{background:#252525;color:white;border:0;border-radius:10px;padding:11px 14px}
+.form-card{
+  background:var(--panel);border:1px solid var(--border);
+  padding:18px;border-radius:16px;margin:15px 0;
 }
-input::placeholder,textarea::placeholder{color:#888}
-textarea{min-height:85px;resize:vertical}
-label{color:#ddd;font-size:14px}
-.container{max-width:1150px;margin:28px auto;padding:0 16px}
-.panel,.post,.auth-box{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:17px;
-  padding:21px;
-  margin-bottom:19px;
-  box-shadow:0 5px 25px #0005;
+.form-card input,.form-card textarea,.form-card select{
+  display:block;width:100%;padding:13px;margin:10px 0;
+  border:1px solid var(--border);border-radius:10px;
+  background:#090909;color:white;outline:none;
 }
-h1,h2,h3{color:var(--orange)}
-h2{margin-top:0}
-p{line-height:1.5}
-.hidden{display:none!important}
-.muted{color:var(--muted);font-size:13px}
-.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.form-card textarea{min-height:90px;resize:vertical}
+.profile-head{display:flex;align-items:center;gap:17px;margin:20px 0}
 .avatar{
-  width:48px;
-  height:48px;
-  border-radius:50%;
-  object-fit:cover;
-  background:#292929;
-  border:2px solid #383838;
+  width:80px;height:80px;border-radius:50%;object-fit:cover;
+  background:#292929;border:2px solid var(--orange);
 }
-.big-avatar{width:85px;height:85px}
-.category-list{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}
-.category{
-  background:#292929;
-  color:white;
-  padding:10px 15px;
-  border-radius:30px;
+.stat-row{display:flex;gap:12px;flex-wrap:wrap}
+.stat{
+  background:var(--panel);padding:15px;border-radius:12px;
+  border:1px solid var(--border);min-width:100px;
 }
-.category.active{
-  background:var(--orange);
-  color:white;
+.stat strong{display:block;font-size:22px;color:var(--orange)}
+.empty{padding:35px;text-align:center;color:var(--muted);background:var(--panel);border-radius:14px}
+.spinner{
+  width:18px;height:18px;border:3px solid #333;
+  border-top-color:var(--blue);border-radius:50%;
+  display:inline-block;animation:spin .7s linear infinite;
 }
-.post{overflow:hidden}
-.post-media{
-  display:block;
-  width:100%;
-  max-height:600px;
-  object-fit:contain;
-  border-radius:13px;
-  margin-top:12px;
-  background:#050505;
-}
-.post-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
-#status{padding:10px 0;color:var(--muted)}
+@keyframes spin{to{transform:rotate(360deg)}}
+#status{color:var(--blue);font-size:13px;min-height:20px;margin:10px 0}
 footer{
-  text-align:center;
-  padding:30px;
-  color:#888;
-  border-top:1px solid #222;
+  border-top:1px solid var(--border);text-align:center;
+  color:#888;padding:23px;font-size:13px;
 }
-.typing-indicator{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:10px 14px;
-  border-radius:20px;
-  background:#111b28;
-}
-.typing-indicator span{
-  width:7px;
-  height:7px;
-  display:block;
-  border-radius:50%;
-  background:var(--blue);
-  box-shadow:0 0 10px #279cff99;
-  animation:blueTyping 1s infinite ease-in-out;
-}
-.typing-indicator span:nth-child(2){animation-delay:.15s}
-.typing-indicator span:nth-child(3){animation-delay:.3s}
-@keyframes blueTyping{
-  0%,60%,100%{transform:translateY(0);opacity:.45}
-  30%{transform:translateY(-7px);opacity:1}
-}
-@media(min-width:850px){
-  .columns{
-    display:grid;
-    grid-template-columns:310px 1fr;
-    gap:20px;
-    align-items:start;
-  }
-}
-@media(max-width:600px){
-  header{padding:12px}
-  .logo{font-size:21px}
-  .container{margin:16px auto}
-  .panel,.post,.auth-box{padding:16px}
+footer span{color:var(--orange)}
+@media(max-width:500px){
+  main{padding:14px 11px 80px}
+  .product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .product-info{padding:9px}
+  .topbar{padding:0 11px}
+  .brand{font-size:20px}
 }
 </style>
 </head>
-
 <body>
 
-<header>
-  <div class="logo">PresaleWeb</div>
-  <div class="row">
-    <img id="navAvatar" class="avatar hidden" alt="Profilbild">
-    <span id="navEmail" class="muted"></span>
-    <button id="logoutBtn" class="secondary hidden" onclick="logout()">Abmelden</button>
+<header class="topbar">
+  <button class="menu-button" onclick="toggleMenu()" aria-label="Menü öffnen">☰</button>
+  <div class="brand">Presale<span>Web</span></div>
+  <div class="top-actions">
+    <button class="small-btn" onclick="showPage('favorites')">♡</button>
+    <button class="small-btn" onclick="showPage('cart')">🛒 <span id="cartCount">0</span></button>
   </div>
 </header>
 
-<main class="container">
+<div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-title">Presale<span>Web</span></div>
+  <button class="nav-item active" data-page="home" onclick="showPage('home')"><span class="ico">⌂</span> Startseite</button>
+  <button class="nav-item" data-page="feed" onclick="showPage('feed')"><span class="ico">▶</span> Für dich</button>
+  <button class="nav-item" data-page="shop" onclick="showPage('shop')"><span class="ico">▦</span> Shop</button>
+  <button class="nav-item" data-page="categories" onclick="showPage('categories')"><span class="ico">▤</span> Kategorien</button>
+  <button class="nav-item" data-page="favorites" onclick="showPage('favorites')"><span class="ico">♡</span> Favoriten</button>
+  <button class="nav-item" data-page="cart" onclick="showPage('cart')"><span class="ico">🛒</span> Warenkorb</button>
+  <button class="nav-item" data-page="profile" onclick="showPage('profile')"><span class="ico">◉</span> Mein Profil</button>
+  <button class="nav-item" data-page="login" onclick="showPage('login')"><span class="ico">⇥</span> Anmelden</button>
+  <button class="nav-item" data-page="admin" id="adminNav" onclick="showPage('admin')" style="display:none"><span class="ico">⚙</span> Admin-Bereich</button>
+  <hr style="border-color:#292929;margin:20px 0">
+  <button class="nav-item" onclick="signOut()">Abmelden</button>
+</aside>
 
-  <!-- ANMELDUNG -->
-  <section id="authSection" class="auth-box">
-    <h2>Willkommen bei PresaleWeb</h2>
-    <p class="muted">Melde dich an oder erstelle ein Konto.</p>
-
-    <input id="email" type="email" placeholder="E-Mail-Adresse">
-    <input id="password" type="password" placeholder="Passwort">
-
-    <div class="row">
-      <button onclick="login()">Anmelden</button>
-      <button class="secondary" onclick="register()">Registrieren</button>
+<main>
+  <section class="page active" id="page-home">
+    <div class="hero">
+      <h1>Willkommen bei <span class="orange">PresaleWeb</span></h1>
+      <p>Entdecke Produkte, neue Angebote und besondere Highlights.</p>
+      <button class="primary" onclick="showPage('shop')">Zum Shop →</button>
     </div>
-
-    <button class="secondary" onclick="resetPassword()">Passwort vergessen?</button>
-    <p id="authMessage" class="muted"></p>
+    <h2>Beliebte Produkte</h2>
+    <p class="sub">Entdecke die neuesten Angebote.</p>
+    <div class="product-grid" id="homeProducts"></div>
   </section>
 
-  <!-- HAUPTBEREICH -->
-  <section id="appSection" class="hidden">
-    <div class="columns">
+  <section class="page" id="page-feed">
+    <h1>Für dich</h1>
+    <p class="sub">Entdecke Produkte im Video- und Feed-Stil.</p>
+    <div class="feed" id="feedProducts"></div>
+  </section>
 
-      <aside>
-        <!-- PROFIL -->
-        <section class="panel">
-          <h2>Dein Profil</h2>
+  <section class="page" id="page-shop">
+    <h1>Shop</h1>
+    <p class="sub">Finde genau das, wonach du suchst.</p>
+    <input class="search" id="searchInput" placeholder="🔎 Produkte suchen..." oninput="renderShop()">
+    <div class="toolbar">
+      <select id="sortSelect" onchange="renderShop()">
+        <option value="new">Neueste zuerst</option>
+        <option value="cheap">Preis: niedrig zuerst</option>
+        <option value="expensive">Preis: hoch zuerst</option>
+        <option value="az">Name: A bis Z</option>
+      </select>
+    </div>
+    <div class="categories" id="shopCategories"></div>
+    <div class="product-grid" id="shopProducts"></div>
+  </section>
 
-          <div class="row">
-            <img id="profileAvatar" class="avatar big-avatar" alt="Profilbild">
-            <div>
-              <strong id="profileName">Mitglied</strong>
-              <div class="muted" id="profileEmail"></div>
-            </div>
-          </div>
+  <section class="page" id="page-categories">
+    <h1>Kategorien</h1>
+    <p class="sub">Wähle eine Kategorie aus.</p>
+    <div class="categories" id="allCategories"></div>
+    <div class="product-grid" id="categoryProducts"></div>
+  </section>
 
-          <label for="avatarFile">Profilbild ändern</label>
-          <input id="avatarFile" type="file" accept="image/*">
+  <section class="page" id="page-favorites">
+    <h1>Deine Favoriten</h1>
+    <p class="sub">Produkte, die du gespeichert hast.</p>
+    <div class="product-grid" id="favoriteProducts"></div>
+  </section>
 
-          <input id="displayName" placeholder="Anzeigename">
-          <textarea id="bio" placeholder="Deine Beschreibung"></textarea>
-
-          <button id="saveProfileBtn" onclick="saveProfile()">Profil speichern</button>
-          <p id="profileMessage" class="muted"></p>
-        </section>
-
-        <!-- STRIPE -->
-        <section class="panel">
-          <h2>Mitgliedschaft</h2>
-          <p>Sichere Zahlung über Stripe.</p>
-          <button onclick="payWithStripe()">Mit Stripe bezahlen</button>
-          <p class="muted">Es werden keine IBAN- oder Bankdaten angezeigt.</p>
-        </section>
-      </aside>
-
-      <div>
-        <!-- ADMIN -->
-        <section id="adminPanel" class="panel hidden">
-          <h2>Beitrag erstellen</h2>
-          <p class="muted">Admin-Bereich – Fotos und Videos veröffentlichen.</p>
-
-          <input id="postTitle" placeholder="Titel des Beitrags">
-          <textarea id="postDescription" placeholder="Beschreibung"></textarea>
-
-          <label for="postCategory">Kategorie</label>
-          <select id="postCategory">
-            <option>Technik</option>
-            <option>Mode</option>
-            <option>Gaming</option>
-            <option>Lifestyle</option>
-            <option>Sonstiges</option>
-          </select>
-
-          <label for="postFile">Foto oder Video auswählen</label>
-          <input id="postFile" type="file"
-            accept="image/*,video/mp4,video/webm,video/quicktime">
-
-          <button id="publishBtn" onclick="createPost()">Beitrag veröffentlichen</button>
-          <p id="uploadMessage" class="muted"></p>
-        </section>
-
-        <!-- FEED -->
-        <section class="panel">
-          <h2>Beiträge</h2>
-
-          <div class="category-list" id="categoryFilters">
-            <button class="category active" onclick="filterCategory('Alle',this)">Alle</button>
-            <button class="category" onclick="filterCategory('Technik',this)">Technik</button>
-            <button class="category" onclick="filterCategory('Mode',this)">Mode</button>
-            <button class="category" onclick="filterCategory('Gaming',this)">Gaming</button>
-            <button class="category" onclick="filterCategory('Lifestyle',this)">Lifestyle</button>
-            <button class="category" onclick="filterCategory('Sonstiges',this)">Sonstiges</button>
-          </div>
-
-          <div id="status">Beiträge werden geladen …</div>
-          <div id="posts"></div>
-        </section>
-      </div>
+  <section class="page" id="page-cart">
+    <h1>Warenkorb</h1>
+    <div id="cartProducts"></div>
+    <div class="form-card">
+      <h2>Gesamt: <span class="orange" id="cartTotal">0,00 €</span></h2>
+      <button class="primary" onclick="checkout()">Mit Stripe bezahlen</button>
+      <p class="sub">Die Zahlung wird über Stripe abgewickelt, sobald eine gültige Checkout-Adresse hinterlegt ist.</p>
     </div>
   </section>
 
+  <section class="page" id="page-profile">
+    <h1>Mein Profil</h1>
+    <div class="profile-head">
+      <img class="avatar" id="profileAvatar" alt="Profilbild">
+      <div><h2 id="profileName">Gast</h2><p class="sub" id="profileEmail"></p></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><strong id="profilePostCount">0</strong>Produkte</div>
+      <div class="stat"><strong id="profileFavCount">0</strong>Favoriten</div>
+    </div>
+    <div class="form-card">
+      <h2>Profil bearbeiten</h2>
+      <input id="displayName" placeholder="Anzeigename">
+      <textarea id="bio" placeholder="Deine Beschreibung"></textarea>
+      <label>Profilbild auswählen</label>
+      <input id="avatarFile" type="file" accept="image/*" onchange="previewAvatar(event)">
+      <button class="primary" onclick="saveProfile()">Profil speichern</button>
+    </div>
+  </section>
+
+  <section class="page" id="page-login">
+    <h1>Anmelden</h1>
+    <div class="form-card">
+      <input id="email" type="email" placeholder="E-Mail-Adresse">
+      <input id="password" type="password" placeholder="Passwort">
+      <button class="primary" onclick="signIn()">Anmelden</button>
+      <button class="secondary" onclick="signUp()">Konto erstellen</button>
+      <button class="secondary" onclick="resetPassword()">Passwort vergessen?</button>
+    </div>
+  </section>
+
+  <section class="page" id="page-admin">
+    <h1>Admin-Bereich</h1>
+    <p class="sub">Produkte und Beiträge verwalten.</p>
+    <div class="stat-row">
+      <div class="stat"><strong id="adminProductCount">0</strong>Produkte</div>
+      <div class="stat"><strong id="adminUser">–</strong>Status</div>
+    </div>
+    <div class="form-card">
+      <h2>Neues Produkt hochladen</h2>
+      <input id="newTitle" placeholder="Produktname">
+      <textarea id="newDescription" placeholder="Produktbeschreibung"></textarea>
+      <input id="newPrice" type="number" min="0" step="0.01" placeholder="Preis in Euro">
+      <select id="newCategory">
+        <option value="Allgemein">Allgemein</option>
+        <option value="Mode">Mode</option>
+        <option value="Technik">Technik</option>
+        <option value="Accessoires">Accessoires</option>
+        <option value="Sneaker">Sneaker</option>
+        <option value="Sonstiges">Sonstiges</option>
+      </select>
+      <input id="newLink" type="url" placeholder="Produkt- oder Stripe-Link (optional)">
+      <label>Produktbild oder Video</label>
+      <input id="newMedia" type="file" accept="image/*,video/*">
+      <button class="primary" onclick="createPost()">Produkt veröffentlichen</button>
+    </div>
+    <h2>Deine veröffentlichten Produkte</h2>
+    <div class="product-grid" id="adminProducts"></div>
+  </section>
+
+  <div id="status"></div>
 </main>
 
 <footer>Site by Noah · Sell by Presell</footer>
 
 <script>
-/* SUPABASE */
 const SUPABASE_URL = "https://erkdbhnhtfhhupkenfxo.supabase.co";
 const SUPABASE_KEY = "sb_publishable_3nLfIVL_igubdhSvJ7NyCg_WK2iPPdG";
 const BUCKET = "orange-photos";
-
-/* ADMIN-KONTEN */
 const ADMIN_EMAILS = [
   "lyzclippz@gmail.com",
   "lemondxpatreon@gmail.com"
 ];
+const STRIPE_CHECKOUT_URL = ""; // Hier deine Stripe-Checkout-Adresse eintragen.
 
-/* STRIPE-CHECKOUT-LINK HIER EINTRAGEN */
-const STRIPE_CHECKOUT_URL = "";
-
-const db = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
 let posts = [];
 let selectedCategory = "Alle";
-let realtimeChannel = null;
-let refreshTimer = null;
-let uploadingPost = false;
-let uploadingAvatar = false;
+let favorites = JSON.parse(localStorage.getItem("pw_favorites") || "[]");
+let cart = JSON.parse(localStorage.getItem("pw_cart") || "[]");
+let avatarPreview = null;
 
-const $ = id => document.getElementById(id);
-
+function status(message, loading=false){
+  document.getElementById("status").innerHTML =
+    (loading ? '<span class="spinner"></span> ' : '') + escapeHTML(message);
+}
+function escapeHTML(value){
+  return String(value ?? "").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+function toggleMenu(){
+  document.getElementById("drawer").classList.toggle("open");
+  document.getElementById("overlay").classList.toggle("show");
+}
+function showPage(name){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById("page-"+name)?.classList.add("active");
+  document.querySelectorAll(".nav-item[data-page]").forEach(b=>
+    b.classList.toggle("active",b.dataset.page===name)
+  );
+  document.getElementById("drawer").classList.remove("open");
+  document.getElementById("overlay").classList.remove("show");
+  if(name==="shop")renderShop();
+  if(name==="favorites")renderFavorites();
+  if(name==="cart")renderCart();
+  if(name==="categories")renderCategories();
+  if(name==="profile")loadProfile();
+  if(name==="admin")renderAdmin();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
 function isAdmin(){
-  return !!currentUser?.email &&
-    ADMIN_EMAILS.includes(currentUser.email.toLowerCase());
+  return !!currentUser && ADMIN_EMAILS.includes((currentUser.email||"").toLowerCase());
 }
-
-function message(id,text){
-  $(id).textContent = text;
-}
-
-function showTyping(id){
-  const element = $(id);
-  element.innerHTML =
-    '<span class="typing-indicator"><span></span><span></span><span></span></span>';
-}
-
-function showApp(user){
-  currentUser = user;
-
-  $("authSection").classList.add("hidden");
-  $("appSection").classList.remove("hidden");
-  $("logoutBtn").classList.remove("hidden");
-
-  $("navEmail").textContent = user.email || "";
-  $("profileEmail").textContent = user.email || "";
-
-  $("adminPanel").classList.toggle("hidden",!isAdmin());
-}
-
-async function login(){
-  const {data,error} = await db.auth.signInWithPassword({
-    email:$("email").value.trim(),
-    password:$("password").value
-  });
-
-  if(error){
-    message("authMessage",error.message);
-    return;
-  }
-
-  await startApp(data.user);
-}
-
-async function register(){
-  const {data,error} = await db.auth.signUp({
-    email:$("email").value.trim(),
-    password:$("password").value
-  });
-
-  if(error){
-    message("authMessage",error.message);
-    return;
-  }
-
-  if(data.session){
-    await startApp(data.user);
-  }else{
-    message("authMessage","Registrierung erfolgreich. Bitte bestätige deine E-Mail-Adresse.");
-  }
-}
-
-async function resetPassword(){
-  const email = $("email").value.trim();
-
-  if(!email){
-    message("authMessage","Bitte zuerst deine E-Mail eingeben.");
-    return;
-  }
-
-  const {error} = await db.auth.resetPasswordForEmail(email);
-
-  message(
-    "authMessage",
-    error ? error.message : "E-Mail zum Zurücksetzen wurde angefordert."
-  );
-}
-
-async function logout(){
-  await db.auth.signOut();
-  location.reload();
-}
-
-async function startApp(user){
-  showApp(user);
-  showTyping("status");
-
-  await Promise.all([
-    loadProfile(),
-    loadPosts()
-  ]);
-
-  subscribeRealtime();
-}
-
-/* PROFIL LADEN */
-async function loadProfile(){
-  if(!currentUser) return;
-
-  const {data,error} = await db.from("profiles")
-    .select("display_name,bio,avatar_url")
-    .eq("id",currentUser.id)
-    .maybeSingle();
-
-  if(error){
-    console.error("Profil laden:",error);
-    message("profileMessage","Profil konnte nicht geladen werden: "+error.message);
-    return;
-  }
-
-  $("profileName").textContent = data?.display_name || "Mitglied";
-  $("displayName").value = data?.display_name || "";
-  $("bio").value = data?.bio || "";
-
-  if(data?.avatar_url){
-    $("profileAvatar").src = data.avatar_url;
-    $("navAvatar").src = data.avatar_url;
-    $("navAvatar").classList.remove("hidden");
-  }
-}
-
-/* PROFIL SPEICHERN */
-async function saveProfile(){
-  const btn = $("saveProfileBtn");
-  btn.disabled = true;
-
-  try{
-    const {error} = await db.from("profiles").upsert({
-      id:currentUser.id,
-      display_name:$("displayName").value.trim(),
-      bio:$("bio").value.trim(),
-      updated_at:new Date().toISOString()
-    });
-
-    if(error) throw error;
-
-    $("profileName").textContent =
-      $("displayName").value.trim() || "Mitglied";
-
-    message("profileMessage","Profil gespeichert.");
-
-  }catch(e){
-    message("profileMessage","Fehler: "+e.message);
-  }finally{
-    btn.disabled = false;
-  }
-}
-
-/* PROFILBILD – SOFORTIGE VORSCHAU */
-$("avatarFile").addEventListener("change",async event=>{
-  const file = event.target.files?.[0];
-
-  if(!file || !currentUser || uploadingAvatar) return;
-
-  if(!file.type.startsWith("image/")){
-    message("profileMessage","Bitte eine Bilddatei auswählen.");
-    return;
-  }
-
-  uploadingAvatar = true;
-
-  const preview = URL.createObjectURL(file);
-
-  $("profileAvatar").src = preview;
-  $("navAvatar").src = preview;
-  $("navAvatar").classList.remove("hidden");
-
-  message("profileMessage","Bild wird hochgeladen …");
-
-  try{
-    const ext = file.name.split(".").pop().toLowerCase();
-    const path =
-      `avatars/${currentUser.id}/${crypto.randomUUID()}.${ext}`;
-
-    const {error:uploadError} = await db.storage
-      .from(BUCKET)
-      .upload(path,file,{
-        cacheControl:"3600",
-        upsert:false
-      });
-
-    if(uploadError) throw uploadError;
-
-    const {data} = db.storage.from(BUCKET).getPublicUrl(path);
-    const avatarUrl = data.publicUrl+"?v="+Date.now();
-
-    const {error:profileError} = await db.from("profiles").upsert({
-      id:currentUser.id,
-      avatar_url:avatarUrl,
-      updated_at:new Date().toISOString()
-    });
-
-    if(profileError) throw profileError;
-
-    $("profileAvatar").src = avatarUrl;
-    $("navAvatar").src = avatarUrl;
-
-    message("profileMessage","Profilbild erfolgreich gespeichert.");
-
-  }catch(e){
-    console.error(e);
-    message("profileMessage","Upload fehlgeschlagen: "+e.message);
-  }finally{
-    URL.revokeObjectURL(preview);
-    uploadingAvatar = false;
-    event.target.value = "";
-  }
-});
-
-/* ERKENNT FEHLENDE OPTIONALE SPALTEN */
-function isMissingColumn(error,column){
-  if(!error) return false;
-
-  const msg = [
-    error.message || "",
-    error.details || "",
-    error.hint || ""
-  ].join(" ").toLowerCase();
-
-  return msg.includes(column.toLowerCase()) &&
-    (
-      msg.includes("column") ||
-      msg.includes("schema cache") ||
-      msg.includes("could not find")
-    );
-}
-
-/* BEITRAG ERSTELLEN */
-async function createPost(){
-  if(!isAdmin()){
-    alert("Du hast keine Admin-Berechtigung.");
-    return;
-  }
-
-  if(uploadingPost) return;
-
-  const file = $("postFile").files?.[0];
-  const title = $("postTitle").value.trim();
-  const category = $("postCategory").value;
-
-  if(!title || !file){
-    message("uploadMessage","Bitte Titel und Foto oder Video auswählen.");
-    return;
-  }
-
-  const isImage = file.type.startsWith("image/");
-  const isVideo = [
-    "video/mp4",
-    "video/webm",
-    "video/quicktime"
-  ].includes(file.type);
-
-  if(!isImage && !isVideo){
-    message("uploadMessage","Bitte ein unterstütztes Bild- oder Videoformat wählen.");
-    return;
-  }
-
-  const maxSize = isVideo
-    ? 100*1024*1024
-    : 15*1024*1024;
-
-  if(file.size > maxSize){
-    message(
-      "uploadMessage",
-      isVideo ? "Video ist größer als 100 MB." : "Bild ist größer als 15 MB."
-    );
-    return;
-  }
-
-  uploadingPost = true;
-  $("publishBtn").disabled = true;
-  message("uploadMessage","Datei wird hochgeladen …");
-
-  try{
-    const ext = file.name.split(".").pop().toLowerCase();
-    const path =
-      `posts/${currentUser.id}/${crypto.randomUUID()}.${ext}`;
-
-    const {error:uploadError} = await db.storage
-      .from(BUCKET)
-      .upload(path,file,{
-        cacheControl:"3600",
-        upsert:false,
-        contentType:file.type
-      });
-
-    if(uploadError) throw uploadError;
-
-    const {data:urlData} = db.storage
-      .from(BUCKET)
-      .getPublicUrl(path);
-
-    const basePost = {
-      user_id:currentUser.id,
-      title:title,
-      image_url:urlData.publicUrl,
-      link_url:"",
-      storage_path:path
-    };
-
-    const fullPost = {
-      ...basePost,
-      category:category,
-      media_type:isVideo ? "video" : "image"
-    };
-
-    message("uploadMessage","Beitrag wird gespeichert …");
-
-    let result = await db.from("posts").insert(fullPost);
-
-    /* FALLBACK: OPTIONALEN SPALTEN FEHLEN */
-    if(
-      isMissingColumn(result.error,"category") ||
-      isMissingColumn(result.error,"media_type")
-    ){
-      result = await db.from("posts").insert(basePost);
-    }
-
-    if(result.error) throw result.error;
-
-    $("postTitle").value = "";
-    $("postDescription").value = "";
-    $("postFile").value = "";
-
-    message("uploadMessage","Beitrag erfolgreich veröffentlicht.");
-    await loadPosts();
-
-  }catch(e){
-    console.error("Beitrag erstellen:",e);
-
-    message(
-      "uploadMessage",
-      "Fehler beim Veröffentlichen: "+e.message
-    );
-
-  }finally{
-    uploadingPost = false;
-    $("publishBtn").disabled = false;
-  }
-}
-
-/* BEITRÄGE LADEN */
 async function loadPosts(){
-  let result = await db.from("posts")
-    .select("id,user_id,title,image_url,link_url,created_at,storage_path,category,media_type")
-    .order("created_at",{ascending:false});
-
-  if(
-    isMissingColumn(result.error,"category") ||
-    isMissingColumn(result.error,"media_type")
-  ){
-    result = await db.from("posts")
-      .select("id,user_id,title,image_url,link_url,created_at,storage_path")
-      .order("created_at",{ascending:false});
-  }
-
+  status("Produkte werden geladen...",true);
+  let result = await db.from("posts").select("*").order("created_at",{ascending:false});
   if(result.error){
-    console.error("Beiträge:",result.error);
-    $("status").textContent =
-      "Beiträge konnten nicht geladen werden: "+result.error.message;
+    status("Fehler beim Laden: "+result.error.message);
     return;
   }
-
-  const unique = new Map();
-
-  (result.data || []).forEach(post=>{
-    unique.set(post.id,post);
-  });
-
-  posts = [...unique.values()];
-  renderPosts();
+  posts = result.data || [];
+  renderAll();
+  status("");
 }
-
-/* KATEGORIEN */
-function filterCategory(category,button){
-  selectedCategory = category;
-
-  document.querySelectorAll("#categoryFilters .category")
-    .forEach(el=>el.classList.remove("active"));
-
-  button.classList.add("active");
-  renderPosts();
+function productCard(p){
+  const title=escapeHTML(p.title || "Produkt");
+  const desc=escapeHTML(p.description || "");
+  const category=escapeHTML(p.category || "Allgemein");
+  const image=p.image_url || "";
+  const price=Number(p.price || 0);
+  const media=(p.media_type==="video" || /\.(mp4|webm|mov)(\?|$)/i.test(image))
+    ? `<video class="product-media" src="${escapeHTML(image)}" muted controls playsinline></video>`
+    : `<img class="product-media" src="${escapeHTML(image)}" alt="${title}" loading="lazy" onerror="this.style.display='none'">`;
+  return `<article class="product">
+    ${media}
+    <div class="product-info">
+      <p class="product-title">${title}</p>
+      <div class="product-desc">${desc}</div>
+      <div class="product-desc">${category}</div>
+      ${p.price!=null ? `<div class="price">${price.toFixed(2).replace(".",",")} €</div>` : ""}
+      <div class="product-buttons">
+        <button class="secondary" onclick="toggleFavorite('${p.id}')">${favorites.includes(p.id)?"♥":"♡"}</button>
+        <button class="primary" onclick="addToCart('${p.id}')">In den Warenkorb</button>
+      </div>
+      ${p.link_url ? `<p><a style="color:var(--orange)" href="${escapeHTML(p.link_url)}" target="_blank" rel="noopener">Zum Angebot ↗</a></p>` : ""}
+    </div>
+  </article>`;
 }
-
-/* BEITRÄGE ANZEIGEN */
-function renderPosts(){
-  const container = $("posts");
-  container.replaceChildren();
-
-  const visible = posts.filter(post=>
-    selectedCategory === "Alle" ||
-    (post.category || "Sonstiges") === selectedCategory
+function renderAll(){
+  document.getElementById("homeProducts").innerHTML=posts.slice(0,6).map(productCard).join("") || '<div class="empty">Noch keine Produkte vorhanden.</div>';
+  document.getElementById("feedProducts").innerHTML=posts.map(p=>`
+    <article class="feed-card">
+      ${p.media_type==="video" ? `<video class="feed-media" controls playsinline src="${escapeHTML(p.image_url||"")}"></video>` : `<img class="feed-media" loading="lazy" src="${escapeHTML(p.image_url||"")}" alt="">`}
+      <div class="feed-details">
+        <h2>${escapeHTML(p.title||"Produkt")}</h2>
+        <p class="sub">${escapeHTML(p.description||"")}</p>
+        <div class="price">${p.price!=null?Number(p.price).toFixed(2).replace(".",",")+" €":""}</div>
+        <div class="feed-actions">
+          <button onclick="toggleFavorite('${p.id}')">♡ Gefällt mir</button>
+          <button onclick="addToCart('${p.id}')">🛒 Kaufen</button>
+        </div>
+      </div>
+    </article>`).join("") || '<div class="empty">Noch keine Beiträge vorhanden.</div>';
+  renderShop();
+  renderCategories();
+  renderFavorites();
+  renderCart();
+  renderAdmin();
+}
+function renderShop(){
+  const query=(document.getElementById("searchInput")?.value||"").toLowerCase();
+  const sort=document.getElementById("sortSelect")?.value||"new";
+  let list=posts.filter(p=>
+    (selectedCategory==="Alle" || (p.category||"Allgemein")===selectedCategory) &&
+    ((p.title||"").toLowerCase().includes(query) ||
+     (p.description||"").toLowerCase().includes(query))
   );
-
-  $("status").textContent = visible.length
-    ? ""
-    : "Noch keine Beiträge in dieser Kategorie.";
-
-  visible.forEach(post=>{
-    const card = document.createElement("article");
-    card.className = "post";
-
-    const heading = document.createElement("h2");
-    heading.textContent = post.title || "Beitrag";
-
-    const category = document.createElement("p");
-    category.className = "muted";
-    category.textContent = post.category || "Sonstiges";
-
-    card.append(heading,category);
-
-    const isVideo =
-      post.media_type === "video" ||
-      /\.(mp4|webm|mov)(\?|$)/i.test(post.image_url || "");
-
-    if(post.image_url){
-      const media = document.createElement(isVideo?"video":"img");
-
-      media.src = post.image_url;
-      media.className = "post-media";
-
-      if(isVideo){
-        media.controls = true;
-        media.playsInline = true;
-        media.preload = "metadata";
-      }else{
-        media.alt = post.title || "Beitragsbild";
-        media.loading = "lazy";
-      }
-
-      card.append(media);
-    }
-
-    if(isAdmin()){
-      const del = document.createElement("button");
-      del.className = "secondary";
-      del.textContent = "Beitrag löschen";
-      del.addEventListener("click",()=>deletePost(post));
-      card.append(del);
-    }
-
-    container.append(card);
-  });
+  if(sort==="cheap")list.sort((a,b)=>(a.price??Infinity)-(b.price??Infinity));
+  if(sort==="expensive")list.sort((a,b)=>(b.price??0)-(a.price??0));
+  if(sort==="az")list.sort((a,b)=>(a.title||"").localeCompare(b.title||""));
+  document.getElementById("shopProducts").innerHTML=list.map(productCard).join("")||'<div class="empty">Keine passenden Produkte gefunden.</div>';
+  const cats=["Alle",...new Set(posts.map(p=>p.category||"Allgemein"))];
+  document.getElementById("shopCategories").innerHTML=cats.map(c=>
+    `<button class="chip ${selectedCategory===c?"active":""}" onclick="chooseCategory('${escapeHTML(c)}')">${escapeHTML(c)}</button>`
+  ).join("");
 }
-
-/* BEITRAG LÖSCHEN – NUR NACH BESTÄTIGUNG */
-async function deletePost(post){
-  if(!isAdmin()) return;
-
-  if(!confirm("Diesen Beitrag wirklich löschen?")) return;
-
-  const {error} = await db.from("posts")
-    .delete()
-    .eq("id",post.id);
-
-  if(error){
-    alert("Löschen fehlgeschlagen: "+error.message);
-    return;
-  }
-
-  if(post.storage_path){
-    const {error:storageError} = await db.storage
-      .from(BUCKET)
-      .remove([post.storage_path]);
-
-    if(storageError){
-      console.warn("Datei konnte nicht gelöscht werden:",storageError);
-    }
-  }
-
-  await loadPosts();
+function chooseCategory(category){
+  selectedCategory=category;
+  renderShop();
 }
-
-/* STRIPE */
-function payWithStripe(){
-  if(!STRIPE_CHECKOUT_URL){
-    alert("Stripe ist noch nicht verbunden. Bitte zuerst deine Stripe-Checkout-URL eintragen.");
-    return;
-  }
-
-  window.location.href = STRIPE_CHECKOUT_URL;
+function renderCategories(){
+  const cats=["Alle",...new Set(posts.map(p=>p.category||"Allgemein"))];
+  document.getElementById("allCategories").innerHTML=cats.map(c=>
+    `<button class="chip ${selectedCategory===c?"active":""}" onclick="chooseCategory('${escapeHTML(c)}');document.getElementById('categoryProducts').innerHTML=posts.filter(p=>selectedCategory==='Alle'||(p.category||'Allgemein')===selectedCategory).map(productCard).join('');">${escapeHTML(c)}</button>`
+  ).join("");
+  document.getElementById("categoryProducts").innerHTML=posts.filter(p=>selectedCategory==="Alle"||(p.category||"Allgemein")===selectedCategory).map(productCard).join("");
 }
-
-/* AUTOMATISCHE AKTUALISIERUNG */
-function subscribeRealtime(){
-  if(realtimeChannel){
-    db.removeChannel(realtimeChannel);
-  }
-
-  realtimeChannel = db.channel("presale
+function toggleFavorite(id){
+  favorites=favorites.includes(id)?favorites.filter(x=>x!==id):[...favorites,id];
+  localStorage.setItem("pw_favorites",JSON.stringify(favorites));
+  renderAll();
+}
+function renderFavorites(){
+  const list=posts.filter(p=>favorites.includes(p.id));
+  document.getElementById("favoriteProducts").innerHTML=list.map(productCard).join("")||'<div class="empty">Du hast noch keine Favoriten gespeichert.</div>';
+  document.getElementById("profileFavCou
