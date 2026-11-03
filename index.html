@@ -90,7 +90,7 @@ let realtimeChannel=null,refreshTimer=null;
 function notify(msg){const n=$("notice");n.textContent=msg;n.style.display="block";window.scrollTo({top:0,behavior:"smooth"});}
 function clearNotice(){$("notice").style.display="none";}
 function initials(n){return(n||"P").trim().charAt(0).toUpperCase();}
-function normalizeLink(v){if(!v||!v.trim())return null;let s=v.trim();if(!/^https?:\\/\\//i.test(s))s="https://"+s;try{const u=new URL(s);return ["http:","https:"].includes(u.protocol)?u.href:false;}catch{return false;}}
+function normalizeLink(v){if(!v||!v.trim())return null;let s=v.trim();if(!/^https?:\/\//i.test(s))s="https://"+s;try{const u=new URL(s);return ["http:","https:"].includes(u.protocol)?u.href:false;}catch{return false;}}
 function publicUrl(path){const {data}=supabase.storage.from(BUCKET).getPublicUrl(path);return data.publicUrl;}
 function cacheBust(url){if(!url)return "";return url+(url.includes("?")?"&":"?")+"v="+Date.now();}
 function showModal(id){$(id).classList.remove("hidden")}function hideModal(id){$(id).classList.add("hidden")}
@@ -117,4 +117,4 @@ async function renderAuth(){
 async function ensureProfile(user){const {data,error}=await supabase.from("profiles").select("*").eq("id",user.id).maybeSingle();if(error)throw error;if(data)return data;const {error:insertError}=await supabase.from("profiles").upsert({id:user.id,display_name:user.email?.split("@")[0]||"Member",bio:""},{onConflict:"id"});if(insertError)throw insertError;const r=await supabase.from("profiles").select("*").eq("id",user.id).single();if(r.error)throw r.error;return r.data;}
 let profile=null;
 async function loadProfile(){
- if(!currentUser)return;profile=await ensureProfile(currentUser);const name=profile.display_name||curr
+ if(!currentUser)return;profile=await ensureProfile(currentUser);const name=profile.display_name||curren
