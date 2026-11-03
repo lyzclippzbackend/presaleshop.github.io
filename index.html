@@ -1,466 +1,120 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090909">
 <title>PresaleWeb</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root {
-  --bg:#080808;
-  --panel:#141414;
-  --panel2:#1c1c1c;
-  --orange:#ff7626;
-  --blue:#269cff;
-  --text:#fff;
-  --muted:#aaa;
-  --border:#292929;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:Arial,Helvetica,sans-serif;
-}
-button,input,textarea,select{font:inherit}
-button{cursor:pointer}
-.topbar{
-  height:65px;position:sticky;top:0;z-index:20;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 17px;background:#090909ed;
-  border-bottom:1px solid var(--border);backdrop-filter:blur(15px);
-}
-.brand{font-size:23px;font-weight:900;letter-spacing:-1px}
-.brand span{color:var(--orange)}
-.menu-button{
-  background:var(--panel2);border:1px solid var(--border);
-  color:white;border-radius:12px;padding:9px 13px;font-size:22px;
-}
-.top-actions{display:flex;gap:9px;align-items:center}
-.small-btn{
-  background:var(--panel2);border:1px solid var(--border);
-  color:white;border-radius:10px;padding:9px 12px;
-}
-.drawer{
-  position:fixed;inset:0 auto 0 0;width:285px;max-width:85vw;
-  background:#101010;z-index:50;padding:20px;
-  transform:translateX(-110%);transition:.25s;
-  border-right:1px solid var(--border);overflow:auto;
-}
-.drawer.open{transform:translateX(0)}
-.overlay{
-  display:none;position:fixed;inset:0;background:#000a;z-index:40;
-}
-.overlay.show{display:block}
-.drawer-title{font-size:22px;font-weight:900;margin:10px 0 25px}
-.drawer-title span{color:var(--orange)}
-.nav-item{
-  width:100%;display:flex;align-items:center;gap:13px;
-  padding:14px;margin:5px 0;border:0;border-radius:12px;
-  background:transparent;color:white;text-align:left;font-size:15px;
-}
-.nav-item:hover,.nav-item.active{background:#292019;color:var(--orange)}
-.nav-item .ico{width:23px;font-size:19px}
-main{max-width:1250px;margin:auto;padding:20px 17px 90px}
-.page{display:none;animation:fade .2s ease}
-.page.active{display:block}
-@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
-h1{font-size:29px;margin:8px 0}
-h2{font-size:21px}
-.sub{color:var(--muted);margin:8px 0 20px}
-.hero{
-  padding:28px;border-radius:20px;
-  background:linear-gradient(125deg,#321707,#151515 65%,#10243a);
-  border:1px solid #3a281d;margin:12px 0 25px;
-}
-.hero h1{font-size:clamp(28px,5vw,43px)}
-.orange{color:var(--orange)}
-.search{
-  width:100%;padding:14px 16px;background:var(--panel);
-  color:white;border:1px solid var(--border);border-radius:13px;
-  outline:none;margin:12px 0;
-}
-.search:focus,input:focus,textarea:focus,select:focus{border-color:var(--orange)}
-.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0 20px}
-.toolbar select,.field{
-  padding:11px;background:var(--panel);color:white;
-  border:1px solid var(--border);border-radius:10px;
-}
-.categories{display:flex;gap:9px;overflow-x:auto;padding:5px 0 15px}
-.chip{
-  white-space:nowrap;border:1px solid var(--border);
-  background:var(--panel);color:white;border-radius:30px;padding:9px 15px;
-}
-.chip.active{background:var(--orange);color:#111;border-color:var(--orange)}
-.product-grid{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));
-  gap:15px;
-}
-.product{
-  background:var(--panel);border:1px solid var(--border);
-  border-radius:15px;overflow:hidden;transition:.2s;min-width:0;
-}
-.product:hover{transform:translateY(-3px);border-color:#75401f}
-.product-media{
-  width:100%;aspect-ratio:4/4.7;object-fit:cover;
-  display:block;background:#222;
-}
-.product-info{padding:12px}
-.product-title{font-weight:750;margin:0 0 7px;overflow-wrap:anywhere}
-.product-desc{color:var(--muted);font-size:13px;line-height:1.4}
-.price{font-size:18px;color:var(--orange);font-weight:900;margin:10px 0}
-.product-buttons{display:flex;gap:7px}
-.primary,.secondary,.danger{
-  padding:11px 13px;border:0;border-radius:10px;font-weight:750;
-}
-.primary{background:var(--orange);color:#111}
-.secondary{background:#292929;color:white}
-.danger{background:#5b1717;color:white}
-.product-buttons button{flex:1;font-size:12px}
-.feed{max-width:620px;margin:auto}
-.feed-card{
-  background:#111;border:1px solid var(--border);
-  border-radius:17px;overflow:hidden;margin:15px 0 23px;
-}
-.feed-media{
-  width:100%;max-height:690px;aspect-ratio:4/5;
-  object-fit:contain;background:#050505;display:block;
-}
-.feed-details{padding:15px}
-.feed-actions{display:flex;gap:10px;margin-top:13px}
-.feed-actions button{background:#252525;color:white;border:0;border-radius:10px;padding:11px 14px}
-.form-card{
-  background:var(--panel);border:1px solid var(--border);
-  padding:18px;border-radius:16px;margin:15px 0;
-}
-.form-card input,.form-card textarea,.form-card select{
-  display:block;width:100%;padding:13px;margin:10px 0;
-  border:1px solid var(--border);border-radius:10px;
-  background:#090909;color:white;outline:none;
-}
-.form-card textarea{min-height:90px;resize:vertical}
-.profile-head{display:flex;align-items:center;gap:17px;margin:20px 0}
-.avatar{
-  width:80px;height:80px;border-radius:50%;object-fit:cover;
-  background:#292929;border:2px solid var(--orange);
-}
-.stat-row{display:flex;gap:12px;flex-wrap:wrap}
-.stat{
-  background:var(--panel);padding:15px;border-radius:12px;
-  border:1px solid var(--border);min-width:100px;
-}
-.stat strong{display:block;font-size:22px;color:var(--orange)}
-.empty{padding:35px;text-align:center;color:var(--muted);background:var(--panel);border-radius:14px}
-.spinner{
-  width:18px;height:18px;border:3px solid #333;
-  border-top-color:var(--blue);border-radius:50%;
-  display:inline-block;animation:spin .7s linear infinite;
-}
-@keyframes spin{to{transform:rotate(360deg)}}
-#status{color:var(--blue);font-size:13px;min-height:20px;margin:10px 0}
-footer{
-  border-top:1px solid var(--border);text-align:center;
-  color:#888;padding:23px;font-size:13px;
-}
-footer span{color:var(--orange)}
-@media(max-width:500px){
-  main{padding:14px 11px 80px}
-  .product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-  .product-info{padding:9px}
-  .topbar{padding:0 11px}
-  .brand{font-size:20px}
-}
+:root{--bg:#090909;--surface:#141414;--surface2:#1d1d1d;--orange:#ff762e;--orange2:#e85d1d;--blue:#39a9ff;--text:#f7f7f7;--muted:#aaa;--line:#292929;--radius:19px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,textarea,select{font:inherit}button{border:0;border-radius:12px;padding:11px 15px;background:var(--orange);color:#111;font-weight:800;cursor:pointer}button:hover{background:var(--orange2)}button:disabled{opacity:.55;cursor:wait}.secondary{background:#292929;color:#fff}.danger{background:#3a1715;color:#ffb5ae}.hidden{display:none!important}a{color:var(--orange)}.muted{color:var(--muted);font-size:13px;line-height:1.65}
+header{height:68px;position:sticky;top:0;z-index:20;background:#101010ed;backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}.topbar{height:100%;max-width:1400px;margin:auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-size:24px;font-weight:950;letter-spacing:-1px}.brand span{color:var(--orange)}.top-actions{display:flex;align-items:center;gap:9px}.iconbtn{background:#1c1c1c;color:white;border:1px solid var(--line);font-size:18px;padding:9px 13px}.nav-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover}
+.drawer-backdrop{position:fixed;inset:0;background:#000a;z-index:29}.drawer{position:fixed;z-index:30;inset:0 auto 0 0;width:min(310px,86vw);background:#111;border-right:1px solid #303030;padding:25px 18px;transform:translateX(-105%);transition:transform .22s;overflow:auto}.drawer.open{transform:translateX(0)}.drawer .brand{margin:15px 12px 30px}.navitem{display:flex;align-items:center;gap:16px;width:100%;text-align:left;background:transparent;color:#eee;padding:15px 14px;margin:3px 0;border-radius:14px;font-size:16px;font-weight:600}.navitem.active,.navitem:hover{background:#2b201a;color:var(--orange)}.navitem .ico{width:24px;text-align:center;font-size:19px}.drawer hr{border:0;border-top:1px solid #333;margin:20px 10px}
+main{max-width:1400px;margin:auto;padding:25px 20px 70px}.notice{display:none;padding:13px 16px;background:#2b201a;border:1px solid #6b3a20;color:#ffc19f;border-radius:13px;margin-bottom:18px;overflow-wrap:anywhere}.page{display:none}.page.active{display:block}.hero{padding:clamp(30px,6vw,70px);border-radius:27px;background:radial-gradient(circle at 85% 15%,#62331e,transparent 32%),linear-gradient(115deg,#21150f,#151515 65%);border:1px solid #39251b;margin-bottom:24px}.eyebrow{color:var(--orange);font-size:11px;letter-spacing:2px;font-weight:900}.hero h1{font-size:clamp(38px,6vw,72px);line-height:1;letter-spacing:-3px;margin:15px 0}.hero p{max-width:590px;color:#c1b8b2;line-height:1.8}.row{display:flex;gap:10px;flex-wrap:wrap}.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:18px}.panel h2{margin:0 0 13px;font-size:21px}.field{display:block;width:100%;padding:13px 14px;margin:9px 0;background:#0d0d0d;color:white;border:1px solid #333;border-radius:12px;outline:none}.field:focus{border-color:var(--blue);box-shadow:0 0 0 3px #39a9ff20}textarea.field{min-height:95px;resize:vertical}.layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:20px;align-items:start}.sectionhead{display:flex;justify-content:space-between;align-items:end;gap:15px;margin:28px 0 14px}.sectionhead h2{margin:5px 0;font-size:28px}.feed{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}.post{overflow:hidden;background:var(--surface);border:1px solid var(--line);border-radius:18px;min-width:0}.post-media{background:#050505;aspect-ratio:4/4.2;display:grid;place-items:center;overflow:hidden}.post-media img,.post-media video{width:100%;height:100%;object-fit:cover}.post-body{padding:15px}.creator{display:flex;align-items:center;gap:9px;margin-bottom:12px}.creator img,.avatar{width:39px;height:39px;border-radius:50%;object-fit:cover;background:#38251b;display:grid;place-items:center;color:#ffb58d;font-weight:900;flex-shrink:0}.creator-name{font-size:13px;font-weight:800}.post-title{font-size:18px;margin:10px 0;overflow-wrap:anywhere}.post-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:12px;margin-top:12px}.post-actions button{font-size:12px;padding:8px 11px}.like{background:#30201a;color:#ffb58d}.comment{font-size:12px;color:#ccc;padding:6px 0;overflow-wrap:anywhere}.comment-form{display:flex;gap:7px;margin-top:8px}.comment-form input{min-width:0;flex:1;background:#0d0d0d;color:white;border:1px solid #333;border-radius:10px;padding:10px}.comment-form button{padding:8px 10px}
+.profile-head{display:flex;align-items:center;gap:13px}.profile-head .avatar{width:62px;height:62px}.profile-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:15px}.profile-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:9px}.user-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.user-row img{width:36px;height:36px;border-radius:50%;object-fit:cover}.user-row span{flex:1;font-size:13px;font-weight:700}.category-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}.category{padding:22px;border:1px solid #38302a;background:linear-gradient(135deg,#211710,#171717);border-radius:16px;text-align:left;color:white}.category b{display:block;color:var(--orange);font-size:17px;margin-bottom:6px}
+.ad{background:linear-gradient(135deg,#2c1b12,#171717);border:1px solid #5a321e;border-radius:20px;padding:22px}.ad h2{font-size:26px}.price{display:flex;justify-content:space-between;padding:12px;border:1px solid #493022;border-radius:12px;margin:8px 0}.modal{position:fixed;inset:0;z-index:50;background:#000b;display:grid;place-items:center;padding:16px}.modal-card{width:min(520px,100%);max-height:90vh;overflow:auto;background:#171717;border:1px solid #383838;border-radius:20px;padding:22px}.modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.modal-head h2{margin:0}.close{background:#303030;color:#fff}
+footer{text-align:center;color:#777;padding:30px;border-top:1px solid var(--line)}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.feed{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){main{padding:16px 12px 50px}.topbar{padding:0 12px}.feed{grid-template-columns:1fr}.post-media{aspect-ratio:4/3}.hero{border-radius:20px}.hero h1{letter-spacing:-2px}.panel{padding:17px}}
 </style>
 </head>
 <body>
-
-<header class="topbar">
-  <button class="menu-button" onclick="toggleMenu()" aria-label="Menü öffnen">☰</button>
+<header><div class="topbar">
+  <button id="menuBtn" class="iconbtn" aria-label="Menü öffnen">☰</button>
   <div class="brand">Presale<span>Web</span></div>
   <div class="top-actions">
-    <button class="small-btn" onclick="showPage('favorites')">♡</button>
-    <button class="small-btn" onclick="showPage('cart')">🛒 <span id="cartCount">0</span></button>
+    <button id="headerLogin">Anmelden</button>
+    <img id="navAvatar" class="nav-avatar hidden" alt="Profilbild">
+    <button id="headerLogout" class="secondary hidden">Abmelden</button>
   </div>
-</header>
+</div></header>
 
-<div class="overlay" id="overlay" onclick="toggleMenu()"></div>
-<aside class="drawer" id="drawer">
-  <div class="drawer-title">Presale<span>Web</span></div>
-  <button class="nav-item active" data-page="home" onclick="showPage('home')"><span class="ico">⌂</span> Startseite</button>
-  <button class="nav-item" data-page="feed" onclick="showPage('feed')"><span class="ico">▶</span> Für dich</button>
-  <button class="nav-item" data-page="shop" onclick="showPage('shop')"><span class="ico">▦</span> Shop</button>
-  <button class="nav-item" data-page="categories" onclick="showPage('categories')"><span class="ico">▤</span> Kategorien</button>
-  <button class="nav-item" data-page="favorites" onclick="showPage('favorites')"><span class="ico">♡</span> Favoriten</button>
-  <button class="nav-item" data-page="cart" onclick="showPage('cart')"><span class="ico">🛒</span> Warenkorb</button>
-  <button class="nav-item" data-page="profile" onclick="showPage('profile')"><span class="ico">◉</span> Mein Profil</button>
-  <button class="nav-item" data-page="login" onclick="showPage('login')"><span class="ico">⇥</span> Anmelden</button>
-  <button class="nav-item" data-page="admin" id="adminNav" onclick="showPage('admin')" style="display:none"><span class="ico">⚙</span> Admin-Bereich</button>
-  <hr style="border-color:#292929;margin:20px 0">
-  <button class="nav-item" onclick="signOut()">Abmelden</button>
+<div id="backdrop" class="drawer-backdrop hidden"></div>
+<aside id="drawer" class="drawer" aria-label="Navigation">
+  <div class="brand">Presale<span>Web</span></div>
+  <button class="navitem active" data-page="home"><span class="ico">⌂</span>Startseite</button>
+  <button class="navitem" data-page="discover"><span class="ico">▶</span>Für dich</button>
+  <button class="navitem" data-page="shop"><span class="ico">▦</span>Shop</button>
+  <button class="navitem" data-page="categories"><span class="ico">▤</span>Kategorien</button>
+  <button class="navitem" data-page="favorites"><span class="ico">♡</span>Favoriten</button>
+  <button class="navitem" data-page="cart"><span class="ico">🛒</span>Warenkorb <span id="cartCount">0</span></button>
+  <button class="navitem" data-page="profile"><span class="ico">◎</span>Mein Profil</button>
+  <button class="navitem" data-page="account"><span class="ico">⇥</span>Anmelden</button>
+  <button id="adminNav" class="navitem hidden" data-page="admin"><span class="ico">⚙</span>Admin-Bereich</button>
+  <hr><button id="drawerLogout" class="navitem hidden">Abmelden</button>
 </aside>
 
 <main>
-  <section class="page active" id="page-home">
-    <div class="hero">
-      <h1>Willkommen bei <span class="orange">PresaleWeb</span></h1>
-      <p>Entdecke Produkte, neue Angebote und besondere Highlights.</p>
-      <button class="primary" onclick="showPage('shop')">Zum Shop →</button>
-    </div>
-    <h2>Beliebte Produkte</h2>
-    <p class="sub">Entdecke die neuesten Angebote.</p>
-    <div class="product-grid" id="homeProducts"></div>
-  </section>
+<div id="notice" class="notice" role="status"></div>
 
-  <section class="page" id="page-feed">
-    <h1>Für dich</h1>
-    <p class="sub">Entdecke Produkte im Video- und Feed-Stil.</p>
-    <div class="feed" id="feedProducts"></div>
-  </section>
+<section id="page-home" class="page active">
+  <div class="hero"><div class="eyebrow">DISCOVER · SHARE · CONNECT</div><h1>Entdecke. Teile.<br>Sei dabei.</h1><p>Finde Produkte, entdecke neue Profile und teile deine Lieblingsfunde mit der PresaleWeb-Community.</p><div class="row"><button data-goto="discover">Jetzt entdecken</button><button class="secondary" data-goto="premium">Presale+ ansehen</button></div></div>
+  <div class="layout"><div><div class="sectionhead"><div><div class="eyebrow">COMMUNITY FEED</div><h2>Neue Beiträge</h2></div></div><div id="homeFeed" class="feed">Beiträge werden geladen …</div></div>
+  <aside><section id="authPanel" class="panel"><h2>Willkommen</h2><p class="muted">Melde dich an oder erstelle dein Konto.</p><input id="email" class="field" type="email" autocomplete="email" placeholder="E-Mail-Adresse"><input id="password" class="field" type="password" autocomplete="current-password" placeholder="Passwort"><div class="row"><button id="loginBtn">Anmelden</button><button id="registerBtn" class="secondary">Registrieren</button></div><button id="resetBtn" class="secondary" style="margin-top:9px">Passwort vergessen?</button></section>
+  <section id="accountPanel" class="panel hidden"><h2>Dein Konto</h2><p id="accountEmail" class="muted"></p><p class="muted">Du bist angemeldet.</p></section>
+  <section class="ad" id="premium"><div class="eyebrow">PRESALE+</div><h2>Mehr aus PresaleWeb machen.</h2><p class="muted">Unterstütze die Plattform und erhalte Premium-Zugang.</p><div class="price"><b>Monatlich</b><b>10 €</b></div><div class="price"><b>Jährlich</b><b>30 €</b></div><div class="price"><b>Lebenslang</b><b>50 €</b></div><button id="buyPremium">Mit Stripe bezahlen</button></section></aside></div>
+</section>
 
-  <section class="page" id="page-shop">
-    <h1>Shop</h1>
-    <p class="sub">Finde genau das, wonach du suchst.</p>
-    <input class="search" id="searchInput" placeholder="🔎 Produkte suchen..." oninput="renderShop()">
-    <div class="toolbar">
-      <select id="sortSelect" onchange="renderShop()">
-        <option value="new">Neueste zuerst</option>
-        <option value="cheap">Preis: niedrig zuerst</option>
-        <option value="expensive">Preis: hoch zuerst</option>
-        <option value="az">Name: A bis Z</option>
-      </select>
-    </div>
-    <div class="categories" id="shopCategories"></div>
-    <div class="product-grid" id="shopProducts"></div>
-  </section>
+<section id="page-discover" class="page"><div class="sectionhead"><div><div class="eyebrow">COMMUNITY</div><h2>Für dich</h2><p class="muted">Aktuelle Beiträge aus der Community.</p></div></div><input id="searchInput" class="field" placeholder="Beiträge oder Creator suchen …"><div id="discoverFeed" class="feed"></div></section>
 
-  <section class="page" id="page-categories">
-    <h1>Kategorien</h1>
-    <p class="sub">Wähle eine Kategorie aus.</p>
-    <div class="categories" id="allCategories"></div>
-    <div class="product-grid" id="categoryProducts"></div>
-  </section>
+<section id="page-shop" class="page"><div class="sectionhead"><div><div class="eyebrow">SHOP</div><h2>Produkte entdecken</h2></div></div><input id="shopSearch" class="field" placeholder="Shop durchsuchen …"><div id="shopFeed" class="feed"></div></section>
 
-  <section class="page" id="page-favorites">
-    <h1>Deine Favoriten</h1>
-    <p class="sub">Produkte, die du gespeichert hast.</p>
-    <div class="product-grid" id="favoriteProducts"></div>
-  </section>
+<section id="page-categories" class="page"><div class="sectionhead"><div><div class="eyebrow">ÜBERSICHT</div><h2>Kategorien</h2></div></div><div id="categoryGrid" class="category-grid"></div></section>
 
-  <section class="page" id="page-cart">
-    <h1>Warenkorb</h1>
-    <div id="cartProducts"></div>
-    <div class="form-card">
-      <h2>Gesamt: <span class="orange" id="cartTotal">0,00 €</span></h2>
-      <button class="primary" onclick="checkout()">Mit Stripe bezahlen</button>
-      <p class="sub">Die Zahlung wird über Stripe abgewickelt, sobald eine gültige Checkout-Adresse hinterlegt ist.</p>
-    </div>
-  </section>
+<section id="page-favorites" class="page"><div class="sectionhead"><div><div class="eyebrow">GEMERKT</div><h2>Favoriten</h2></div></div><div id="favoritesFeed" class="feed"></div></section>
 
-  <section class="page" id="page-profile">
-    <h1>Mein Profil</h1>
-    <div class="profile-head">
-      <img class="avatar" id="profileAvatar" alt="Profilbild">
-      <div><h2 id="profileName">Gast</h2><p class="sub" id="profileEmail"></p></div>
-    </div>
-    <div class="stat-row">
-      <div class="stat"><strong id="profilePostCount">0</strong>Produkte</div>
-      <div class="stat"><strong id="profileFavCount">0</strong>Favoriten</div>
-    </div>
-    <div class="form-card">
-      <h2>Profil bearbeiten</h2>
-      <input id="displayName" placeholder="Anzeigename">
-      <textarea id="bio" placeholder="Deine Beschreibung"></textarea>
-      <label>Profilbild auswählen</label>
-      <input id="avatarFile" type="file" accept="image/*" onchange="previewAvatar(event)">
-      <button class="primary" onclick="saveProfile()">Profil speichern</button>
-    </div>
-  </section>
+<section id="page-cart" class="page"><div class="sectionhead"><div><div class="eyebrow">SHOPPING</div><h2>Warenkorb</h2></div></div><div class="panel"><p id="cartItems" class="muted">Dein Warenkorb ist leer.</p><button id="clearCart" class="secondary">Warenkorb leeren</button></div></section>
 
-  <section class="page" id="page-login">
-    <h1>Anmelden</h1>
-    <div class="form-card">
-      <input id="email" type="email" placeholder="E-Mail-Adresse">
-      <input id="password" type="password" placeholder="Passwort">
-      <button class="primary" onclick="signIn()">Anmelden</button>
-      <button class="secondary" onclick="signUp()">Konto erstellen</button>
-      <button class="secondary" onclick="resetPassword()">Passwort vergessen?</button>
-    </div>
-  </section>
+<section id="page-profile" class="page"><div class="sectionhead"><div><div class="eyebrow">ACCOUNT</div><h2>Mein Profil</h2></div></div><div class="layout"><div class="panel"><div class="profile-head"><img id="avatarImage" class="avatar hidden" alt="Profilbild"><div id="avatarFallback" class="avatar">P</div><div><h3 id="profileName">Dein Profil</h3><p class="muted">PresaleWeb Member</p></div></div><input id="avatarFile" class="field" type="file" accept="image/jpeg,image/png,image/webp"><input id="displayName" class="field" maxlength="40" placeholder="Anzeigename"><textarea id="bio" class="field" maxlength="160" placeholder="Erzähl etwas über dich …"></textarea><div class="row"><button id="saveProfile">Profil speichern</button><button id="uploadAvatar" class="secondary">Profilbild hochladen</button></div><h3>Meine Beiträge</h3><div id="myProfilePosts" class="profile-grid"></div></div><div class="panel"><h2>Community-Profile</h2><div id="userList" class="muted">Profile werden geladen …</div></div></div></section>
 
-  <section class="page" id="page-admin">
-    <h1>Admin-Bereich</h1>
-    <p class="sub">Produkte und Beiträge verwalten.</p>
-    <div class="stat-row">
-      <div class="stat"><strong id="adminProductCount">0</strong>Produkte</div>
-      <div class="stat"><strong id="adminUser">–</strong>Status</div>
-    </div>
-    <div class="form-card">
-      <h2>Neues Produkt hochladen</h2>
-      <input id="newTitle" placeholder="Produktname">
-      <textarea id="newDescription" placeholder="Produktbeschreibung"></textarea>
-      <input id="newPrice" type="number" min="0" step="0.01" placeholder="Preis in Euro">
-      <select id="newCategory">
-        <option value="Allgemein">Allgemein</option>
-        <option value="Mode">Mode</option>
-        <option value="Technik">Technik</option>
-        <option value="Accessoires">Accessoires</option>
-        <option value="Sneaker">Sneaker</option>
-        <option value="Sonstiges">Sonstiges</option>
-      </select>
-      <input id="newLink" type="url" placeholder="Produkt- oder Stripe-Link (optional)">
-      <label>Produktbild oder Video</label>
-      <input id="newMedia" type="file" accept="image/*,video/*">
-      <button class="primary" onclick="createPost()">Produkt veröffentlichen</button>
-    </div>
-    <h2>Deine veröffentlichten Produkte</h2>
-    <div class="product-grid" id="adminProducts"></div>
-  </section>
+<section id="page-account" class="page"><div class="panel"><h2>Anmelden oder registrieren</h2><p class="muted">Nutze die Anmeldung auf der Startseite.</p><button data-goto="home">Zur Startseite</button></div></section>
 
-  <div id="status"></div>
+<section id="page-admin" class="page"><div class="sectionhead"><div><div class="eyebrow">CREATOR STUDIO</div><h2>Admin-Bereich</h2></div></div><div class="panel"><h2>Beitrag veröffentlichen</h2><p class="muted">Bilder oder Videos hochladen. Die Admin-Berechtigung wird sicher in Supabase geprüft.</p><input id="mediaFile" class="field" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"><input id="postTitle" class="field" maxlength="120" placeholder="Titel"><textarea id="postDescription" class="field" maxlength="1000" placeholder="Beschreibung (optional)"></textarea><select id="postCategory" class="field"><option value="Allgemein">Allgemein</option><option value="Technik">Technik</option><option value="Mode">Mode</option><option value="Gaming">Gaming</option><option value="Lifestyle">Lifestyle</option><option value="Beauty">Beauty</option><option value="Sonstiges">Sonstiges</option></select><input id="postLink" class="field" placeholder="Produktlink (optional)"><button id="uploadBtn">＋ Beitrag veröffentlichen</button><p class="muted">Bilder bis 8 MB, Videos bis 100 MB. Erlaubt: JPG, PNG, WebP, MP4, WebM.</p></div></section>
 </main>
+<footer>PresaleWeb · Discover · Share · Connect</footer>
 
-<footer>Site by Noah · Sell by Presell</footer>
+<div id="premiumModal" class="modal hidden"><div class="modal-card"><div class="modal-head"><h2>Presale+ freischalten</h2><button class="close" id="closePremium">✕</button></div><p class="muted">Wähle deinen Plan. Die Zahlung läuft ausschließlich über Stripe Checkout. Auf dieser Seite werden keine Bankdaten oder Kartendaten gespeichert.</p><select id="plan" class="field"><option value="monthly">Monatlich – 10 €</option><option value="yearly">Jährlich – 30 €</option><option value="lifetime">Lebenslang – 50 €</option></select><button id="cardPay" style="width:100%">Sicher mit Stripe bezahlen</button><p id="cardInfo" class="muted">Du wirst zur sicheren Stripe-Zahlungsseite weitergeleitet.</p></div></div>
+<div id="profileModal" class="modal hidden"><div class="modal-card"><div class="modal-head"><h2 id="publicProfileName">Profil</h2><button class="close" id="closeProfile">✕</button></div><div id="publicProfileContent"></div></div></div>
 
-<script>
-const SUPABASE_URL = "https://erkdbhnhtfhhupkenfxo.supabase.co";
-const SUPABASE_KEY = "sb_publishable_3nLfIVL_igubdhSvJ7NyCg_WK2iPPdG";
-const BUCKET = "orange-photos";
-const ADMIN_EMAILS = [
-  "lyzclippz@gmail.com",
-  "lemondxpatreon@gmail.com"
-];
-const STRIPE_CHECKOUT_URL = ""; // Hier deine Stripe-Checkout-Adresse eintragen.
+<script type="module">
+import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
+const SUPABASE_URL="https://erkdbhnhtfhhupkenfxo.supabase.co";
+const SUPABASE_KEY="sb_publishable_3nLfIVL_igubdhSvJ7NyCg_WK2iPPdG";
+const BUCKET="orange-photos";
+// Muss auf eine selbst gehostete Supabase Edge Function zeigen. Niemals Stripe-Secret-Key hier eintragen.
+const STRIPE_FUNCTION_URL=SUPABASE_URL+"/functions/v1/create-checkout-session";
+const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+const $=id=>document.getElementById(id);
+let currentUser=null,isAdmin=false,allPosts=[],profilesById=new Map(),likesByPost=new Map(),commentsByPost=new Map(),favorites=new Set(),cart=[];
+let realtimeChannel=null,refreshTimer=null;
 
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-let currentUser = null;
-let posts = [];
-let selectedCategory = "Alle";
-let favorites = JSON.parse(localStorage.getItem("pw_favorites") || "[]");
-let cart = JSON.parse(localStorage.getItem("pw_cart") || "[]");
-let avatarPreview = null;
+function notify(msg){const n=$("notice");n.textContent=msg;n.style.display="block";window.scrollTo({top:0,behavior:"smooth"});}
+function clearNotice(){$("notice").style.display="none";}
+function initials(n){return(n||"P").trim().charAt(0).toUpperCase();}
+function normalizeLink(v){if(!v||!v.trim())return null;let s=v.trim();if(!/^https?:\\/\\//i.test(s))s="https://"+s;try{const u=new URL(s);return ["http:","https:"].includes(u.protocol)?u.href:false;}catch{return false;}}
+function publicUrl(path){const {data}=supabase.storage.from(BUCKET).getPublicUrl(path);return data.publicUrl;}
+function cacheBust(url){if(!url)return "";return url+(url.includes("?")?"&":"?")+"v="+Date.now();}
+function showModal(id){$(id).classList.remove("hidden")}function hideModal(id){$(id).classList.add("hidden")}
+function openDrawer(open){$("drawer").classList.toggle("open",open);$("backdrop").classList.toggle("hidden",!open)}
+function go(page){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$("page-"+page)?.classList.add("active");document.querySelectorAll(".navitem[data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===page));openDrawer(false);if(page==="favorites")renderFavorites();if(page==="shop")renderShop();window.scrollTo({top:0,behavior:"smooth"});}
+document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.page)));
+document.querySelectorAll("[data-goto]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.goto)));
+$("menuBtn").onclick=()=>openDrawer(!$("drawer").classList.contains("open"));$("backdrop").onclick=()=>openDrawer(false);
+$("headerLogin").onclick=()=>go("home");$("buyPremium").onclick=()=>showModal("premiumModal");$("closePremium").onclick=()=>hideModal("premiumModal");$("closeProfile").onclick=()=>hideModal("profileModal");
+$("headerLogout").onclick=$("drawerLogout").onclick=async()=>{const {error}=await supabase.auth.signOut();if(error)notify("Abmelden fehlgeschlagen: "+error.message);else{currentUser=null;isAdmin=false;await renderAuth();notify("Du wurdest abgemeldet.");}};
+$("loginBtn").onclick=async()=>{clearNotice();const {error}=await supabase.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});if(error)notify(error.message);};
+$("registerBtn").onclick=async()=>{const email=$("email").value.trim(),password=$("password").value;if(!email||password.length<10)return notify("Bitte E-Mail und mindestens 10 Zeichen Passwort eingeben.");const {data,error}=await supabase.auth.signUp({email,password,options:{emailRedirectTo:location.href}});if(error)return notify(error.message);if(data.session)notify("Konto erstellt und angemeldet.");else notify("Bitte bestätige zuerst deine E-Mail.");};
+$("resetBtn").onclick=async()=>{const email=$("email").value.trim();if(!email)return notify("Bitte zuerst deine E-Mail eingeben.");const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:location.href});notify(error?error.message:"Falls ein Konto existiert, wurde eine E-Mail versendet.");};
 
-function status(message, loading=false){
-  document.getElementById("status").innerHTML =
-    (loading ? '<span class="spinner"></span> ' : '') + escapeHTML(message);
+async function renderAuth(){
+ const loggedIn=!!currentUser;
+ $("authPanel").classList.toggle("hidden",loggedIn);$("accountPanel").classList.toggle("hidden",!loggedIn);
+ $("profilePanel")?.classList.toggle("hidden",!loggedIn);
+ $("headerLogin").classList.toggle("hidden",loggedIn);$("headerLogout").classList.toggle("hidden",!loggedIn);$("drawerLogout").classList.toggle("hidden",!loggedIn);
+ $("navAvatar").classList.toggle("hidden",!loggedIn||!profile?.avatar_url);
+ $("adminNav").classList.toggle("hidden",!isAdmin);
+ if(loggedIn){$("accountEmail").textContent=currentUser.email||"";if(profile?.avatar_url)$("navAvatar").src=cacheBust(profile.avatar_url);}
 }
-function escapeHTML(value){
-  return String(value ?? "").replace(/[&<>"']/g,c=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[c]));
-}
-function toggleMenu(){
-  document.getElementById("drawer").classList.toggle("open");
-  document.getElementById("overlay").classList.toggle("show");
-}
-function showPage(name){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.getElementById("page-"+name)?.classList.add("active");
-  document.querySelectorAll(".nav-item[data-page]").forEach(b=>
-    b.classList.toggle("active",b.dataset.page===name)
-  );
-  document.getElementById("drawer").classList.remove("open");
-  document.getElementById("overlay").classList.remove("show");
-  if(name==="shop")renderShop();
-  if(name==="favorites")renderFavorites();
-  if(name==="cart")renderCart();
-  if(name==="categories")renderCategories();
-  if(name==="profile")loadProfile();
-  if(name==="admin")renderAdmin();
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-function isAdmin(){
-  return !!currentUser && ADMIN_EMAILS.includes((currentUser.email||"").toLowerCase());
-}
-async function loadPosts(){
-  status("Produkte werden geladen...",true);
-  let result = await db.from("posts").select("*").order("created_at",{ascending:false});
-  if(result.error){
-    status("Fehler beim Laden: "+result.error.message);
-    return;
-  }
-  posts = result.data || [];
-  renderAll();
-  status("");
-}
-function productCard(p){
-  const title=escapeHTML(p.title || "Produkt");
-  const desc=escapeHTML(p.description || "");
-  const category=escapeHTML(p.category || "Allgemein");
-  const image=p.image_url || "";
-  const price=Number(p.price || 0);
-  const media=(p.media_type==="video" || /\.(mp4|webm|mov)(\?|$)/i.test(image))
-    ? `<video class="product-media" src="${escapeHTML(image)}" muted controls playsinline></video>`
-    : `<img class="product-media" src="${escapeHTML(image)}" alt="${title}" loading="lazy" onerror="this.style.display='none'">`;
-  return `<article class="product">
-    ${media}
-    <div class="product-info">
-      <p class="product-title">${title}</p>
-      <div class="product-desc">${desc}</div>
-      <div class="product-desc">${category}</div>
-      ${p.price!=null ? `<div class="price">${price.toFixed(2).replace(".",",")} €</div>` : ""}
-      <div class="product-buttons">
-        <button class="secondary" onclick="toggleFavorite('${p.id}')">${favorites.includes(p.id)?"♥":"♡"}</button>
-        <button class="primary" onclick="addToCart('${p.id}')">In den Warenkorb</button>
-      </div>
-      ${p.link_url ? `<p><a style="color:var(--orange)" href="${escapeHTML(p.link_url)}" target="_blank" rel="noopener">Zum Angebot ↗</a></p>` : ""}
-    </div>
-  </article>`;
-}
-function renderAll(){
-  document.getElementById("homeProducts").innerHTML=posts.slice(0,6).map(productCard).join("") || '<div class="empty">Noch keine Produkte vorhanden.</div>';
-  document.getElementById("feedProducts").innerHTML=posts.map(p=>`
-    <article class="feed-card">
-      ${p.media_type==="video" ? `<video class="feed-media" controls playsinline src="${escapeHTML(p.image_url||"")}"></video>` : `<img class="feed-media" loading="lazy" src="${escapeHTML(p.image_url||"")}" alt="">`}
-      <div class="feed-details">
-        <h2>${escapeHTML(p.title||"Produkt")}</h2>
-        <p class="sub">${escapeHTML(p.description||"")}</p>
-        <div class="price">${p.price!=null?Number(p.price).toFixed(2).replace(".",",")+" €":""}</div>
-        <div class="feed-actions">
-          <button onclick="toggleFavorite('${p.id}')">♡ Gefällt mir</button>
-          <button onclick="addToCart('${p.id}')">🛒 Kaufen</button>
-        </div>
-      </div>
-    </article>`).join("") || '<div class="empty">Noch keine Beiträge vorhanden.</div>';
-  renderShop();
-  renderCategories();
-  renderFavorites();
-  renderCart();
-  renderAdmin();
-}
-function renderShop(){
-  const query=(document.getElementById("searchInput")?.value||"").toLowerCase();
-  const sort=document.getElementById("sortSelect")?.value||"new";
-  let list=posts.filter(p=>
-    (selectedCategory==="Alle" || (p.category||"Allgemein")===selectedCategory) &&
-    ((p.title||"").toLowerCase().includes(query) ||
-     (p.description||"").toLowerCase().includes(query))
-  );
-  if(sort==="cheap")list.sort((a,b)=>(a.price??Infinity)-(b.price??Infinity));
-  if(sort==="expensive")list.sort((a,b)=>(b.price??0)-(a.price??0));
-  if(sort==="az")list.sort((a,b)=>(a.title||"").localeCompare(b.title||""));
-  document.getElementById("shopProducts").innerHTML=list.map(productCard).join("")||'<div class="empty">Keine passenden Produkte gefunden.</div>';
-  const cats=["Alle",...new Set(posts.map(p=>p.category||"Allgemein"))];
-  document.getElementById("shopCategories").innerHTML=cats.map(c=>
-    `<button class="chip ${selectedCategory===c?"active":""}" onclick="chooseCategory('${escapeHTML(c)}')">${escapeHTML(c)}</button>`
-  ).join("");
-}
-function chooseCategory(category){
-  selectedCategory=category;
-  renderShop();
-}
-function renderCategories(){
-  const cats=["Alle",...new Set(posts.map(p=>p.category||"Allgemein"))];
-  document.getElementById("allCategories").innerHTML=cats.map(c=>
-    `<button class="chip ${selectedCategory===c?"active":""}" onclick="chooseCategory('${escapeHTML(c)}');document.getElementById('categoryProducts').innerHTML=posts.filter(p=>selectedCategory==='Alle'||(p.category||'Allgemein')===selectedCategory).map(productCard).join('');">${escapeHTML(c)}</button>`
-  ).join("");
-  document.getElementById("categoryProducts").innerHTML=posts.filter(p=>selectedCategory==="Alle"||(p.category||"Allgemein")===selectedCategory).map(productCard).join("");
-}
-function toggleFavorite(id){
-  favorites=favorites.includes(id)?favorites.filter(x=>x!==id):[...favorites,id];
-  localStorage.setItem("pw_favorites",JSON.stringify(favorites));
-  renderAll();
-}
-function renderFavorites(){
-  const list=posts.filter(p=>favorites.includes(p.id));
-  document.getElementById("favoriteProducts").innerHTML=list.map(productCard).join("")||'<div class="empty">Du hast noch keine Favoriten gespeichert.</div>';
-  document.getElementById("profileFavCou
+async function ensureProfile(user){const {data,error}=await supabase.from("profiles").select("*").eq("id",user.id).maybeSingle();if(error)throw error;if(data)return data;const {error:insertError}=await supabase.from("profiles").upsert({id:user.id,display_name:user.email?.split("@")[0]||"Member",bio:""},{onConflict:"id"});if(insertError)throw insertError;const r=await supabase.from("profiles").select("*").eq("id",user.id).single();if(r.error)throw r.error;return r.data;}
+let profile=null;
+async function loadProfile(){
+ if(!currentUser)return;profile=await ensureProfile(currentUser);const name=profile.display_name||curr
